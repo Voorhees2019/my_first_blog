@@ -1,0 +1,56 @@
+{% extends 'blog/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <article class="media content-section">
+        <img src="{{ object.author.profile.image.url }}" class="rounded-circle article-img">
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a>
+                <small class="text-muted">{{ object.date_posted|date:'F d, Y' }}</small>
+                {% if object.author == user %}
+                    <div class="mt-2 mb-2">
+                        <a href="{% url 'post-update' object.pk %}" class="btn btn-secondary btn-sm ">Update Post</a>
+                        <a href="{% url 'post-delete' object.pk %}" class="btn btn-danger btn-sm">Delete Post</a>
+                    </div>
+                {% endif %}
+            </div>
+            <h2 class="article-title">{{ object.title }}</h2>
+            <p class="article-content">{{ object.content|safe }}</p>
+        </div>
+    </article>
+
+    <!-- COMMENTS -->
+
+    <div class="content-section mt-3">
+        <form action="" method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-3">Leave a comment</legend>
+                {{ comment_form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Post</button>
+            </div>
+        </form>
+    </div>
+
+    {% if comments %}
+        <strong class="text-secondary">{{ object.number_of_comments }}
+            Comment{{ object.number_of_comments|pluralize }}</strong>
+        <hr>
+        {% for comment in comments %}
+            <div class="pl-3 mb-3 border">
+                <strong class="text-info">{{ comment.name }}</strong>
+                <small class="text-muted">{{ comment.date_posted|date:'F d, Y' }}</small>
+                <div class="ml-2">
+                    <p>{{ comment.content|safe|linebreaks }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <strong class="text-secondary">No comments yet...</strong>
+    {% endif %}
+
+{% endblock %}
